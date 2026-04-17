@@ -29,7 +29,7 @@ sudo apt update
 sudo apt install -y curl iptables iptables-legacy pcmanfm-qt lxqt-core network-manager
 ```
 
-### Ajuste importante
+Faça este ajuste importante
 
 ```bash
 sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
