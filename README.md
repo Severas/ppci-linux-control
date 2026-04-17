@@ -3,6 +3,7 @@
 ## 🎯 Objetivo
 
 Criar um sistema onde o computador:
+
 - Liga
 - Baixa regras de um servidor
 - Bloqueia a internet
@@ -16,6 +17,23 @@ Criar um sistema onde o computador:
 - Computador = aluno ou CLIENTE (recebe regras)
 - Script = cérebro
 - Config = regras
+
+---
+
+## 📦 PASSO 0 — Dependências (CLIENTE)
+
+Antes de tudo, instale as dependências necessárias:
+
+```bash
+sudo apt update
+sudo apt install -y curl iptables iptables-legacy pcmanfm-qt lxqt-core network-manager
+```
+
+### Ajuste importante
+
+```bash
+sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
+```
 
 ---
 
