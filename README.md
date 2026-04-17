@@ -1,5 +1,4 @@
-
-# 🏁 PPCI Linux Lite — Tutorial Completo 
+# 🏁 PPCI Linux Lite — Tutorial Completo
 
 ## 🎯 Objetivo
 
@@ -14,7 +13,7 @@ Criar um sistema onde o computador:
 ## 🧠 Explicação Simples
 
 - Servidor = professor (manda regras)
-- Computador = aluno (recebe regras)
+- Computador = aluno ou CLIENTE (recebe regras)
 - Script = cérebro
 - Config = regras
 
@@ -30,9 +29,9 @@ https://maratona.td.utfpr.edu.br/ppci-linux-lite/
 
 Arquivos necessários:
 
-- `bloqueio.sh`
-- `maratona.conf`
-- `wallpaper_ppci/wallpaper.png`
+* `bloqueio.sh`
+* `maratona.conf`
+* `wallpaper_ppci/wallpaper.png`
 
 ---
 
@@ -110,13 +109,30 @@ done
 
 log "Firewall aplicado"
 
+# Wallpaper (para LXQt)
+
 if [ ! -z "$WALLPAPER_URL" ]; then
-    TMP_WALL="/tmp/wallpaper"
+    TMP_WALL="/tmp/wallpaper.png"
+    DEST="/usr/share/backgrounds/ppci/wallpaper.png"
 
     if curl -fsSL "$WALLPAPER_URL" -o "$TMP_WALL"; then
         mkdir -p /usr/share/backgrounds/ppci
-        cp "$TMP_WALL" /usr/share/backgrounds/ppci/wallpaper.png
+        cp "$TMP_WALL" "$DEST"
         log "Wallpaper baixado"
+
+        (
+        sleep 5
+
+        USER_REAL=$(logname 2>/dev/null || echo $SUDO_USER)
+
+        if [ ! -z "$USER_REAL" ]; then
+            su - $USER_REAL -c "DISPLAY=:0 pcmanfm-qt --set-wallpaper=$DEST"
+            log "Wallpaper aplicado (LXQt)"
+        else
+            log "Usuário não detectado"
+        fi
+        ) &
+
     else
         log "Erro wallpaper"
     fi
@@ -125,7 +141,7 @@ fi
 
 ---
 
-## ⚙️ PASSO 4 — Loader
+## ⚙️ PASSO 4 — Loader (CLIENTE)
 
 Crie:
 
@@ -173,7 +189,7 @@ sudo chmod +x /usr/local/bin/maratona-loader.sh
 
 ---
 
-## ⚙️ PASSO 5 — systemd
+## ⚙️ PASSO 5 — systemd (CLIENTE)
 
 ```bash
 sudo nano /etc/systemd/system/maratona.service
@@ -236,3 +252,4 @@ cat /var/log/maratona.log
 - Todas máquinas iguais ✔️
 - Atualização centralizada ✔️
 - Bloqueio funcionando ✔️
+- Wallpaper automático ✔️
