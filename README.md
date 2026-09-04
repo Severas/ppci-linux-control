@@ -1,63 +1,63 @@
-# 🏁 PPCI Linux Lite — Tutorial Completo
+# 🏁 PPCI Linux Lite — Complete Tutorial
 
-## 🎯 Objetivo
+## 🎯 Objective
 
-Criar um sistema onde o computador:
+Create a system where the computer:
 
-- Liga
-- Baixa regras de um servidor
-- Bloqueia a internet
-- Aplica configurações automaticamente
-
----
-
-## 🧠 Explicação Simples
-
-- Servidor = professor (manda regras)
-- Computador = aluno ou CLIENTE (recebe regras)
-- Script = cérebro
-- Config = regras
+- Boots up
+- Downloads rules from a server
+- Blocks internet access
+- Applies configurations automatically
 
 ---
 
-## 📦 PASSO 0 — Dependências (CLIENTE)
+## 🧠 Simple Explanation
 
-Antes de tudo, instale as dependências necessárias:
+- Server = teacher (sends the rules)
+- Computer = student or CLIENT (receives the rules)
+- Script = brain
+- Config = rules
 
-```bash
+---
+
+## 📦 STEP 0 — Dependencies (CLIENT)
+
+Before anything else, install the required dependencies:
+
+```
 sudo apt update
 sudo apt install -y curl iptables iptables-legacy pcmanfm-qt lxqt-core network-manager
 ```
 
-Faça este ajuste importante
+Make this important adjustment:
 
-```bash
+```
 sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
 ```
 
 ---
 
-## 📁 PASSO 1 — Servidor
+## 📁 STEP 1 — Server
 
-Crie a estrutura:
+Create the structure:
 
 ```
 https://maratona.td.utfpr.edu.br/ppci-linux-lite/
 ```
 
-Arquivos necessários:
+Required files:
 
-* `bloqueio.sh`
-* `maratona.conf`
-* `wallpaper_ppci/wallpaper.png`
+- `bloqueio.sh`
+- `maratona.conf`
+- `wallpaper_ppci/wallpaper.png`
 
 ---
 
-## 🧾 PASSO 2 — Arquivo de Configuração
+## 🧾 STEP 2 — Configuration File
 
-Crie `maratona.conf`:
+Create `maratona.conf`:
 
-```ini
+```
 IPS="200.134.10.20"
 PORTA=443
 WALLPAPER_URL="https://maratona.td.utfpr.edu.br/ppci-linux-lite/wallpaper_ppci/wallpaper.png"
@@ -66,7 +66,7 @@ VERSION=1
 
 ---
 
-## ⚙️ PASSO 3 — Script Principal (bloqueio.sh)
+## ⚙️ STEP 3 — Main Script (bloqueio.sh)
 
 ```bash
 #!/bin/bash
@@ -82,17 +82,17 @@ log(){
     echo "[ $(date) ] $1" | tee -a $LOG
 }
 
-log "Baixando configuração..."
+log "Downloading configuration..."
 
 if curl -fsSL "$URL_CONF" -o "$TMP_CONF"; then
     cp "$TMP_CONF" "$CACHE_CONF"
-    log "Config atualizada"
+    log "Config updated"
 else
-    log "Erro download, usando cache"
+    log "Download error, using cache"
     if [ -f "$CACHE_CONF" ]; then
         cp "$CACHE_CONF" "$TMP_CONF"
     else
-        log "Sem config disponível!"
+        log "No config available!"
         exit 1
     fi
 fi
@@ -100,11 +100,11 @@ fi
 source "$TMP_CONF"
 
 if [ -z "$IPS" ] || [ -z "$PORTA" ]; then
-    log "Variáveis inválidas"
+    log "Invalid variables"
     exit 1
 fi
 
-log "Aplicando firewall..."
+log "Applying firewall..."
 
 iptables -F
 iptables -t nat -F
@@ -125,9 +125,9 @@ for ip in $IPS; do
     iptables -A INPUT -p tcp -s $ip --sport $PORTA -j ACCEPT
 done
 
-log "Firewall aplicado"
+log "Firewall applied"
 
-# Wallpaper (para LXQt)
+# Wallpaper (for LXQt)
 
 if [ ! -z "$WALLPAPER_URL" ]; then
     TMP_WALL="/tmp/wallpaper.png"
@@ -136,7 +136,7 @@ if [ ! -z "$WALLPAPER_URL" ]; then
     if curl -fsSL "$WALLPAPER_URL" -o "$TMP_WALL"; then
         mkdir -p /usr/share/backgrounds/ppci
         cp "$TMP_WALL" "$DEST"
-        log "Wallpaper baixado"
+        log "Wallpaper downloaded"
 
         (
         sleep 5
@@ -145,29 +145,29 @@ if [ ! -z "$WALLPAPER_URL" ]; then
 
         if [ ! -z "$USER_REAL" ]; then
             su - $USER_REAL -c "DISPLAY=:0 pcmanfm-qt --set-wallpaper=$DEST"
-            log "Wallpaper aplicado (LXQt)"
+            log "Wallpaper applied (LXQt)"
         else
-            log "Usuário não detectado"
+            log "User not detected"
         fi
         ) &
 
     else
-        log "Erro wallpaper"
+        log "Wallpaper error"
     fi
 fi
 ```
 
 ---
 
-## ⚙️ PASSO 4 — Loader (CLIENTE)
+## ⚙️ STEP 4 — Loader (CLIENT)
 
-Crie:
+Create:
 
-```bash
+```
 sudo nano /usr/local/bin/maratona-loader.sh
 ```
 
-Cole:
+Paste:
 
 ```bash
 #!/bin/bash
@@ -181,39 +181,39 @@ log(){
     echo "[ $(date) ] $1" | tee -a $LOG
 }
 
-log "Baixando script..."
+log "Downloading script..."
 
 if curl -fsSL "$URL" -o "$TMP"; then
     chmod +x "$TMP"
     cp "$TMP" "$LOCAL"
-    log "Executando remoto"
+    log "Running remote"
     bash "$TMP"
 else
-    log "Erro download, usando local"
+    log "Download error, using local"
     if [ -f "$LOCAL" ]; then
         bash "$LOCAL"
     else
-        log "Sem fallback!"
+        log "No fallback!"
         exit 1
     fi
 fi
 ```
 
-Permissão:
+Permission:
 
-```bash
+```
 sudo chmod +x /usr/local/bin/maratona-loader.sh
 ```
 
 ---
 
-## ⚙️ PASSO 5 — systemd (CLIENTE)
+## ⚙️ STEP 5 — systemd (CLIENT)
 
-```bash
+```
 sudo nano /etc/systemd/system/maratona.service
 ```
 
-Conteúdo:
+Content:
 
 ```ini
 [Unit]
@@ -230,28 +230,28 @@ RemainAfterExit=true
 WantedBy=multi-user.target
 ```
 
-Ativar:
+Enable:
 
-```bash
+```
 sudo systemctl daemon-reload
 sudo systemctl enable maratona.service
 ```
 
 ---
 
-## 🚀 PASSO 6 — Fluxo
+## 🚀 STEP 6 — Flow
 
 Boot → Loader → Script → Config → Firewall → Wallpaper
 
 ---
 
-## 🧪 PASSO 7 — Testes
+## 🧪 STEP 7 — Tests
 
-```bash
+```
 curl https://maratona.td.utfpr.edu.br
 ```
 
-```bash
+```
 curl https://google.com
 ```
 
@@ -259,15 +259,15 @@ curl https://google.com
 
 ## 📜 Logs
 
-```bash
+```
 cat /var/log/maratona.log
 ```
 
 ---
 
-## 🏁 Resultado Final
+## 🏁 Final Result
 
-- Todas máquinas iguais ✔️
-- Atualização centralizada ✔️
-- Bloqueio funcionando ✔️
-- Wallpaper automático ✔️
+- All machines identical ✔️
+- Centralized updates ✔️
+- Blocking working ✔️
+- Automatic wallpaper ✔️
